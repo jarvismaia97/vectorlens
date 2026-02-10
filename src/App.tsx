@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Crosshair } from 'lucide-react';
 import { Sidebar, type ViewType } from './components/Sidebar';
 import { BrowseView } from './components/BrowseView';
 import { SearchView } from './components/SearchView';
@@ -57,7 +58,8 @@ function App() {
     <div className="flex flex-col h-screen overflow-hidden relative">
       {isDemo && (
         <div className="bg-[var(--accent)]/10 border-b border-[var(--accent)]/20 px-4 py-2 text-center text-xs text-[var(--accent)] flex items-center justify-center gap-2 shrink-0">
-          <span>🎯 Demo Mode — Showing sample data</span>
+          <Crosshair size={14} />
+          <span>Demo Mode — Showing sample data</span>
           <a href="https://github.com/pdrfranca/chromadb-viewer#readme" target="_blank" rel="noopener noreferrer" className="underline hover:opacity-80">Connect your ChromaDB to get started</a>
         </div>
       )}
