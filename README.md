@@ -11,7 +11,7 @@ Browse, search, and visualize your vector collections — no code required.
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker)](docker-compose.yml)
 [![Deploy](https://img.shields.io/badge/Demo-vectorlens.vercel.app-black?logo=vercel)](https://vectorlens.vercel.app)
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-yellow?logo=buymeacoffee)](https://buymeacoffee.com/jarvismaia97)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-yellow?logo=buymeacoffee)](https://buymeacoffee.com/letreco)
 
 </div>
 
