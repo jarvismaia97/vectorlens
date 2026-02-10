@@ -6,11 +6,11 @@
 
 Browse, search, and visualize your vector collections — no code required.
 
-<!-- TODO: Add screenshot here → screenshots/hero.png (full dashboard view) -->
-<!-- TODO: Add logo here → assets/logo.png -->
+![VectorLens Browse View](./screenshots/browse.png)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker)](docker-compose.yml)
+[![Deploy](https://img.shields.io/badge/Demo-vectorlens.vercel.app-black?logo=vercel)](https://vectorlens.vercel.app)
 
 </div>
 
@@ -24,12 +24,13 @@ Browse, search, and visualize your vector collections — no code required.
 - **🕸️ Memory Graph** — Interactive force-directed graph showing relationships between documents
 - **🔁 Duplicate Detection** — Find near-duplicate entries across your collections
 
-<!-- TODO: Add feature screenshots
-  screenshots/collections.png  — Collection browser
-  screenshots/search.png       — Semantic search results
-  screenshots/graph.png        — Memory graph visualization
-  screenshots/timeline.png     — Timeline view
--->
+| Browse | Search |
+|--------|--------|
+| ![Browse](./screenshots/browse.png) | ![Search](./screenshots/search.png) |
+
+| Timeline | Memory Graph |
+|----------|--------------|
+| ![Timeline](./screenshots/timeline.png) | ![Graph](./screenshots/graph.png) |
 
 ## 🚀 Quick Start
 
