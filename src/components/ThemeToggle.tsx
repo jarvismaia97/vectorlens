@@ -3,7 +3,10 @@ import { useState, useEffect } from 'react';
 
 export function ThemeToggle() {
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    return (localStorage.getItem('theme') as 'dark' | 'light') || 'dark';
+    const stored = localStorage.getItem('theme') as 'dark' | 'light' | null;
+    if (stored) return stored;
+    if (window.matchMedia('(prefers-color-scheme: light)').matches) return 'light';
+    return 'dark';
   });
 
   useEffect(() => {

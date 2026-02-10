@@ -6,6 +6,7 @@ import {
   listCollections,
   getCollection,
   getDocuments,
+  getAllDocuments,
   type QueryResult,
 } from './chromaClient';
 import {
@@ -42,6 +43,10 @@ export function useApi() {
     getDocuments: isDemo
       ? (collectionId: string, limit?: number, offset?: number) => demoGetDocuments(collectionId, limit, offset)
       : (collectionId: string, limit?: number, offset?: number) => getDocuments(collectionId, limit, offset),
+
+    getAllDocuments: isDemo
+      ? (collectionId: string, _includeEmbeddings?: boolean) => demoGetDocuments(collectionId)
+      : (collectionId: string, includeEmbeddings?: boolean) => getAllDocuments(collectionId, includeEmbeddings),
 
     query: isDemo
       ? (collection: string, query: string, nResults: number): Promise<QueryResult> =>

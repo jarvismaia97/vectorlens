@@ -67,6 +67,23 @@ export async function getDocuments(
   );
 }
 
+export async function getAllDocuments(
+  collectionId: string,
+  includeEmbeddings = false,
+  tenant = 'default_tenant',
+  database = 'default_database'
+): Promise<{ ids: string[]; documents: string[]; metadatas: Record<string, unknown>[]; embeddings?: number[][] }> {
+  const include = ['documents', 'metadatas'];
+  if (includeEmbeddings) include.push('embeddings');
+  return apiFetch(
+    `/tenants/${tenant}/databases/${database}/collections/${collectionId}/get`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ include }),
+    }
+  );
+}
+
 export async function queryCollection(
   collectionId: string,
   queryText: string,

@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Layers, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { CollectionInfo } from '../lib/chromaClient';
 import { DocumentCard } from './DocumentCard';
 import { StatsBar } from './StatsBar';
+import { ExportButton } from './ExportButton';
 import { useApi } from '../lib/useApi';
 
 interface BrowseViewProps {
@@ -47,9 +48,17 @@ export function BrowseView({ collection }: BrowseViewProps) {
 
   const totalPages = Math.ceil(collection.count / pageSize);
 
+  const fetchAll = useCallback(
+    (includeEmbeddings: boolean) => api.getAllDocuments(collection.id, includeEmbeddings),
+    [api, collection.id]
+  );
+
   return (
     <div className="flex-1 overflow-y-auto p-6">
-      <StatsBar collection={collection} />
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1"><StatsBar collection={collection} /></div>
+        <div className="pt-1 shrink-0"><ExportButton fetchAll={fetchAll} collectionName={collection.name} /></div>
+      </div>
 
       {loading && (
         <div className="text-center py-8">
