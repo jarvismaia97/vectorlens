@@ -1,0 +1,97 @@
+import { useState, useEffect } from 'react';
+import { Layers, ChevronLeft, ChevronRight } from 'lucide-react';
+import { getDocuments, type CollectionInfo } from '../lib/chromaClient';
+import { DocumentCard } from './DocumentCard';
+import { StatsBar } from './StatsBar';
+
+interface BrowseViewProps {
+  collection: CollectionInfo | null;
+}
+
+export function BrowseView({ collection }: BrowseViewProps) {
+  const [docs, setDocs] = useState<{ ids: string[]; documents: string[]; metadatas: Record<string, unknown>[] } | null>(null);
+  const [page, setPage] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const pageSize = 20;
+
+  useEffect(() => {
+    if (!collection) return;
+    setLoading(true);
+    setPage(0);
+    getDocuments(collection.id, pageSize, 0)
+      .then(setDocs)
+      .finally(() => setLoading(false));
+  }, [collection]);
+
+  const loadPage = async (p: number) => {
+    if (!collection) return;
+    setLoading(true);
+    setPage(p);
+    const res = await getDocuments(collection.id, pageSize, p * pageSize);
+    setDocs(res);
+    setLoading(false);
+  };
+
+  if (!collection) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <div className="text-center">
+          <Layers size={40} className="text-[var(--accent)]/30 mx-auto mb-3" />
+          <p className="text-sm text-[var(--text-secondary)]">Select a collection to browse</p>
+        </div>
+      </div>
+    );
+  }
+
+  const totalPages = Math.ceil(collection.count / pageSize);
+
+  return (
+    <div className="flex-1 overflow-y-auto p-6">
+      <StatsBar collection={collection} />
+
+      {loading && (
+        <div className="text-center py-8">
+          <div className="w-6 h-6 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin mx-auto" />
+        </div>
+      )}
+
+      {docs && !loading && (
+        <>
+          <div className="space-y-3">
+            {docs.ids.map((id, i) => (
+              <DocumentCard
+                key={id}
+                id={id}
+                document={docs.documents[i] || ''}
+                metadata={docs.metadatas[i] || {}}
+              />
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-3 mt-6 py-4">
+              <button
+                onClick={() => loadPage(page - 1)}
+                disabled={page === 0}
+                className="p-2 rounded-lg hover:bg-white/5 text-[var(--text-secondary)] disabled:opacity-30 transition-colors"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <span className="text-xs text-[var(--text-secondary)]">
+                Page {page + 1} of {totalPages}
+              </span>
+              <button
+                onClick={() => loadPage(page + 1)}
+                disabled={page >= totalPages - 1}
+                className="p-2 rounded-lg hover:bg-white/5 text-[var(--text-secondary)] disabled:opacity-30 transition-colors"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
