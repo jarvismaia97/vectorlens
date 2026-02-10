@@ -199,7 +199,7 @@ export function Sidebar({ collections, selected, onSelect, onRefresh, connected,
       <div className="px-4 py-3 border-t border-[var(--border)]">
         <div className="flex items-center gap-2 text-[10px] text-[var(--text-secondary)]">
           <Activity size={10} />
-          <span>localhost:8000</span>
+          <span>Connected to ChromaDB</span>
         </div>
       </div>
     </aside>

@@ -16,6 +16,7 @@ function App() {
   const [view, setView] = useState<ViewType>('browse');
   const [refreshKey, setRefreshKey] = useState(0);
   const [storeOpen, setStoreOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const loadCollections = useCallback(() => {
     getHeartbeat()
@@ -49,20 +50,30 @@ function App() {
   }, []);
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar
-        collections={collections}
-        selected={selected}
-        onSelect={setSelected}
-        onRefresh={handleRefresh}
-        connected={connected}
-        view={view}
-        onViewChange={setView}
-        onStore={() => setStoreOpen(true)}
-      />
-      <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-12 border-b border-[var(--border)] flex items-center px-6 justify-between">
-          <h2 className="text-sm font-medium">
+    <div className="flex h-screen overflow-hidden relative">
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 bg-black/50 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />
+      )}
+      <div className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed md:relative z-40 md:z-auto transition-transform duration-200`}>
+        <Sidebar
+          collections={collections}
+          selected={selected}
+          onSelect={(c) => { setSelected(c); setSidebarOpen(false); }}
+          onRefresh={handleRefresh}
+          connected={connected}
+          view={view}
+          onViewChange={(v) => { setView(v); setSidebarOpen(false); }}
+          onStore={() => setStoreOpen(true)}
+        />
+      </div>
+      <main className="flex-1 flex flex-col overflow-hidden w-full">
+        <header className="h-12 border-b border-[var(--border)] flex items-center px-4 md:px-6 justify-between">
+          <div className="flex items-center gap-3">
+            <button className="md:hidden text-[var(--text-secondary)] hover:text-[var(--text-primary)]" onClick={() => setSidebarOpen(true)}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+            </button>
+            <h2 className="text-sm font-medium">
             {selected ? (
               <>
                 <span className="text-[var(--text-secondary)]">collection / </span>
@@ -77,6 +88,7 @@ function App() {
               {collection.count} chunks
             </span>
           )}
+          </div>
         </header>
 
         {view === 'browse' && <BrowseView collection={collection} key={`browse-${refreshKey}`} />}
