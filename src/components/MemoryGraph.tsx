@@ -1,5 +1,5 @@
 import { GitBranch, Loader } from 'lucide-react';
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import type { CollectionInfo } from '../lib/chromaClient';
 import { useApi } from '../lib/useApi';
 
@@ -50,7 +50,24 @@ export function MemoryGraph({ collection }: MemoryGraphProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const graphRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const api = useApi();
+
+  useEffect(() => {
+    const updateSize = () => {
+      if (containerRef.current) {
+        setDimensions({
+          width: containerRef.current.clientWidth,
+          height: containerRef.current.clientHeight,
+        });
+      }
+    };
+    updateSize();
+    window.addEventListener('resize', updateSize);
+    // Small delay to get correct size after layout
+    const timer = setTimeout(updateSize, 100);
+    return () => { window.removeEventListener('resize', updateSize); clearTimeout(timer); };
+  }, [loaded]);
 
   const loadGraph = async () => {
     if (!collection) return;
@@ -111,7 +128,7 @@ export function MemoryGraph({ collection }: MemoryGraphProps) {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      <div className="flex items-center gap-3 p-4 border-b border-[var(--border)] justify-center">
+      <div className="flex flex-wrap items-center gap-3 p-4 border-b border-[var(--border)] justify-center">
         <label className="text-[10px] text-[var(--text-secondary)]">Sample:</label>
         <select
           value={sampleSize}
@@ -168,8 +185,8 @@ export function MemoryGraph({ collection }: MemoryGraphProps) {
             linkWidth={0.5}
             onNodeHover={(node: GraphNode | null) => setHovered(node)}
             backgroundColor="transparent"
-            width={typeof window !== 'undefined' ? window.innerWidth - 256 : 800}
-            height={typeof window !== 'undefined' ? window.innerHeight - 120 : 600}
+            width={dimensions.width || 800}
+            height={dimensions.height || 600}
           />
           {hovered && (
             <div
