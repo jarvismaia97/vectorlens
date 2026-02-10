@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Layers, ChevronLeft, ChevronRight } from 'lucide-react';
-import { getDocuments, type CollectionInfo } from '../lib/chromaClient';
+import type { CollectionInfo } from '../lib/chromaClient';
 import { DocumentCard } from './DocumentCard';
 import { StatsBar } from './StatsBar';
+import { useApi } from '../lib/useApi';
 
 interface BrowseViewProps {
   collection: CollectionInfo | null;
@@ -13,21 +14,22 @@ export function BrowseView({ collection }: BrowseViewProps) {
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
   const pageSize = 20;
+  const api = useApi();
 
   useEffect(() => {
     if (!collection) return;
     setLoading(true);
     setPage(0);
-    getDocuments(collection.id, pageSize, 0)
+    api.getDocuments(collection.id, pageSize, 0)
       .then(setDocs)
       .finally(() => setLoading(false));
-  }, [collection]);
+  }, [collection, api]);
 
   const loadPage = async (p: number) => {
     if (!collection) return;
     setLoading(true);
     setPage(p);
-    const res = await getDocuments(collection.id, pageSize, p * pageSize);
+    const res = await api.getDocuments(collection.id, pageSize, p * pageSize);
     setDocs(res);
     setLoading(false);
   };

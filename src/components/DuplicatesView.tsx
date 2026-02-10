@@ -1,6 +1,7 @@
 import { Copy, Trash2, Loader, AlertTriangle } from 'lucide-react';
 import { useState } from 'react';
 import type { CollectionInfo } from '../lib/chromaClient';
+import { useApi } from '../lib/useApi';
 
 interface DupGroup {
   anchor: { id: string; document: string; metadata: Record<string, unknown> };
@@ -19,18 +20,14 @@ export function DuplicatesView({ collection, onRefresh }: DuplicatesViewProps) {
   const [threshold, setThreshold] = useState(0.08);
   const [deleting, setDeleting] = useState<Set<string>>(new Set());
   const [searched, setSearched] = useState(false);
+  const api = useApi();
 
   const scan = async () => {
     if (!collection) return;
     setLoading(true);
     setSearched(true);
     try {
-      const res = await fetch('/duplicates', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ collection: collection.name, threshold, sample_size: 300 }),
-      });
-      const data = await res.json();
+      const data = await api.duplicates(collection.name, threshold, 300);
       setGroups(data.duplicates || []);
       setScanned(data.scanned || 0);
     } catch {
@@ -44,11 +41,7 @@ export function DuplicatesView({ collection, onRefresh }: DuplicatesViewProps) {
     if (!collection) return;
     setDeleting((prev) => new Set(prev).add(id));
     try {
-      await fetch('/delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ collection: collection.name, ids: [id] }),
-      });
+      await api.deleteDocs(collection.name, [id]);
       // Remove from groups
       setGroups((prev) =>
         prev.map((g) => ({

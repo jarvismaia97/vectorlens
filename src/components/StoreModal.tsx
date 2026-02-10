@@ -1,5 +1,6 @@
 import { X, Plus, Loader } from 'lucide-react';
 import { useState } from 'react';
+import { useApi } from '../lib/useApi';
 
 interface StoreModalProps {
   open: boolean;
@@ -15,6 +16,7 @@ export function StoreModal({ open, onClose, onStored }: StoreModalProps) {
   const [tags, setTags] = useState('');
   const [saving, setSaving] = useState(false);
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
+  const api = useApi();
 
   if (!open) return null;
 
@@ -23,21 +25,16 @@ export function StoreModal({ open, onClose, onStored }: StoreModalProps) {
     setSaving(true);
     setResult(null);
     try {
-      const res = await fetch('/store', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: text.trim(), source: source || undefined, section: section || undefined, date, tags: tags || undefined }),
-      });
-      const data = await res.json();
+      const data = await api.store({ text: text.trim(), source: source || undefined, section: section || undefined, date, tags: tags || undefined }) as Record<string, unknown>;
       if (data.success) {
-        setResult({ success: true, message: `Stored as ${data.id?.slice(0, 12)}… (${data.chunks} total chunks)` });
+        setResult({ success: true, message: `Stored as ${String(data.id || '').slice(0, 12)}… (${data.chunks} total chunks)` });
         setText('');
         setSource('');
         setSection('');
         setTags('');
         onStored();
       } else {
-        setResult({ success: false, message: data.error || 'Failed to store' });
+        setResult({ success: false, message: String(data.error || 'Failed to store') });
       }
     } catch {
       setResult({ success: false, message: 'Network error' });

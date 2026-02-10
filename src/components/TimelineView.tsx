@@ -1,6 +1,7 @@
 import { Calendar, ChevronLeft, ChevronRight, Tag } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import type { CollectionInfo } from '../lib/chromaClient';
+import { useApi } from '../lib/useApi';
 
 interface TimelineItem {
   id: string;
@@ -19,23 +20,19 @@ export function TimelineView({ collection }: TimelineViewProps) {
   const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(false);
   const limit = 100;
+  const api = useApi();
 
   useEffect(() => {
     if (!collection) return;
     setLoading(true);
-    fetch('/timeline', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ collection: collection.name, offset, limit }),
-    })
-      .then((r) => r.json())
-      .then((data) => {
+    api.timeline(collection.name, offset, limit)
+      .then((data: { items: TimelineItem[]; total: number }) => {
         setItems(data.items || []);
         setTotal(data.total || 0);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [collection, offset]);
+  }, [collection, offset, api]);
 
   if (!collection) {
     return (

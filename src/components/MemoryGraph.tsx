@@ -1,6 +1,7 @@
 import { GitBranch, Loader } from 'lucide-react';
 import { useState, useRef, useCallback } from 'react';
 import type { CollectionInfo } from '../lib/chromaClient';
+import { useApi } from '../lib/useApi';
 
 // Lazy-load react-force-graph-2d to avoid SSR issues
 import ForceGraph2D from 'react-force-graph-2d';
@@ -49,17 +50,13 @@ export function MemoryGraph({ collection }: MemoryGraphProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const graphRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const api = useApi();
 
   const loadGraph = async () => {
     if (!collection) return;
     setLoading(true);
     try {
-      const res = await fetch('/graph', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ collection: collection.name, sample_size: sampleSize, threshold: 0.15 }),
-      });
-      const data = await res.json();
+      const data = await api.graph(collection.name, sampleSize, 0.15);
       setNodes(data.nodes || []);
       setLinks(data.links || []);
       setLoaded(true);

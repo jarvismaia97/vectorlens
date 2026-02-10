@@ -4,6 +4,7 @@ import type { CollectionInfo } from '../lib/chromaClient';
 import { DocumentCard } from './DocumentCard';
 import { SourceFilter } from './SourceFilter';
 import { ExportButton } from './ExportButton';
+import { useApi } from '../lib/useApi';
 
 interface SearchResult {
   ids: string[][];
@@ -16,16 +17,6 @@ interface SearchViewProps {
   collection: CollectionInfo | null;
 }
 
-async function semanticQuery(collection: string, query: string, nResults: number): Promise<SearchResult> {
-  const res = await fetch('/query', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ collection, query, n_results: nResults }),
-  });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
-}
-
 export function SearchView({ collection }: SearchViewProps) {
   const [query, setQuery] = useState('');
   const [nResults, setNResults] = useState(10);
@@ -33,6 +24,7 @@ export function SearchView({ collection }: SearchViewProps) {
   const [results, setResults] = useState<SearchResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
+  const api = useApi();
   const [sourceFilter, setSourceFilter] = useState<string[]>([]);
 
   const handleSearch = async () => {
@@ -40,7 +32,7 @@ export function SearchView({ collection }: SearchViewProps) {
     setLoading(true);
     setSearched(true);
     try {
-      const res = await semanticQuery(collection.name, query.trim(), nResults);
+      const res = await api.query(collection.name, query.trim(), nResults);
       setResults(res);
     } catch (err) {
       console.error(err);

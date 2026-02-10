@@ -2,6 +2,7 @@ import { Layers, Search, Activity, RefreshCw, Check, AlertCircle, Clock, Plus, C
 import { useState, useEffect } from 'react';
 import { Logo } from './Logo';
 import { ThemeToggle } from './ThemeToggle';
+import { useApi } from '../lib/useApi';
 
 export type ViewType = 'browse' | 'search' | 'timeline' | 'duplicates' | 'graph';
 
@@ -28,23 +29,31 @@ export function Sidebar({ collections, selected, onSelect, onRefresh, connected,
   const [collectionCounts, setCollectionCounts] = useState<CollectionCount[]>([]);
   const [sources, setSources] = useState<Record<string, number>>({});
   const [sourcesOpen, setSourcesOpen] = useState(false);
+  const api = useApi();
 
   // Load collection counts
   useEffect(() => {
-    fetch('/collections', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
-      .then((r) => r.json())
+    api.collections()
       .then((data: CollectionCount[]) => setCollectionCounts(data))
       .catch(() => {});
-  }, [collections]);
+  }, [collections, api]);
 
   // Load sources for selected collection
   useEffect(() => {
     if (!selected) return;
-    fetch('/sources', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ collection: selected }) })
-      .then((r) => r.json())
-      .then((data) => setSources(data.sources || {}))
+    api.sources(selected)
+      .then((data: unknown) => {
+        // Handle both array format (demo) and object format (real)
+        if (Array.isArray(data)) {
+          const sourcesObj: Record<string, number> = {};
+          for (const s of data) sourcesObj[s] = 1;
+          setSources(sourcesObj);
+        } else if (data && typeof data === 'object' && 'sources' in data) {
+          setSources((data as { sources: Record<string, number> }).sources || {});
+        }
+      })
       .catch(() => {});
-  }, [selected]);
+  }, [selected, api]);
 
   const getCount = (name: string) => collectionCounts.find((c) => c.name === name)?.count;
 
@@ -52,9 +61,8 @@ export function Sidebar({ collections, selected, onSelect, onRefresh, connected,
     setSyncing(true);
     setSyncResult(null);
     try {
-      const res = await fetch('/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
-      const data = await res.json();
-      setSyncResult({ success: data.success, summary: data.summary, output: data.output });
+      const data = await api.sync() as { success?: boolean; summary?: string; output?: string[] };
+      setSyncResult({ success: !!data.success, summary: data.summary || 'Done', output: data.output });
       setLastSync(new Date().toLocaleTimeString());
       if (data.success) onRefresh();
     } catch {

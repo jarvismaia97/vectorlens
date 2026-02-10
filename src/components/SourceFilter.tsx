@@ -1,5 +1,6 @@
 import { Filter, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useApi } from '../lib/useApi';
 
 interface SourceFilterProps {
   collection: string;
@@ -10,17 +11,21 @@ interface SourceFilterProps {
 export function SourceFilter({ collection, selected, onChange }: SourceFilterProps) {
   const [sources, setSources] = useState<Record<string, number>>({});
   const [open, setOpen] = useState(false);
+  const api = useApi();
 
   useEffect(() => {
-    fetch('/sources', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ collection }),
-    })
-      .then((r) => r.json())
-      .then((data) => setSources(data.sources || {}))
+    api.sources(collection)
+      .then((data: unknown) => {
+        if (Array.isArray(data)) {
+          const obj: Record<string, number> = {};
+          for (const s of data) obj[s] = 1;
+          setSources(obj);
+        } else if (data && typeof data === 'object' && 'sources' in data) {
+          setSources((data as { sources: Record<string, number> }).sources || {});
+        }
+      })
       .catch(() => {});
-  }, [collection]);
+  }, [collection, api]);
 
   const sourceList = Object.entries(sources).sort((a, b) => b[1] - a[1]);
 

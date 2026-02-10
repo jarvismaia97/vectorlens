@@ -6,7 +6,9 @@ import { TimelineView } from './components/TimelineView';
 import { DuplicatesView } from './components/DuplicatesView';
 import { MemoryGraph } from './components/MemoryGraph';
 import { StoreModal } from './components/StoreModal';
-import { listCollections, getCollection, getHeartbeat, type CollectionInfo } from './lib/chromaClient';
+import type { CollectionInfo } from './lib/chromaClient';
+import { useApi } from './lib/useApi';
+import { useDemoMode } from './lib/demoMode';
 
 function App() {
   const [collections, setCollections] = useState<string[]>([]);
@@ -17,26 +19,28 @@ function App() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [storeOpen, setStoreOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const api = useApi();
+  const { isDemo, checking } = useDemoMode();
 
   const loadCollections = useCallback(() => {
-    getHeartbeat()
+    api.getHeartbeat()
       .then(() => {
         setConnected(true);
-        return listCollections();
+        return api.listCollections();
       })
       .then((cols) => {
         setCollections(cols);
         if (cols.length > 0 && !selected) setSelected(cols[0]);
       })
       .catch(() => setConnected(false));
-  }, []);
+  }, [api]);
 
-  useEffect(() => { loadCollections(); }, [loadCollections]);
+  useEffect(() => { if (!checking) loadCollections(); }, [loadCollections, checking]);
 
   useEffect(() => {
     if (!selected) return;
-    getCollection(selected).then(setCollection);
-  }, [selected, refreshKey]);
+    api.getCollection(selected).then(setCollection);
+  }, [selected, refreshKey, api]);
 
   const handleRefresh = () => {
     setRefreshKey((k) => k + 1);
@@ -50,7 +54,14 @@ function App() {
   }, []);
 
   return (
-    <div className="flex h-screen overflow-hidden relative">
+    <div className="flex flex-col h-screen overflow-hidden relative">
+      {isDemo && (
+        <div className="bg-[var(--accent)]/10 border-b border-[var(--accent)]/20 px-4 py-2 text-center text-xs text-[var(--accent)] flex items-center justify-center gap-2 shrink-0">
+          <span>🎯 Demo Mode — Showing sample data</span>
+          <a href="https://github.com/pdrfranca/chromadb-viewer#readme" target="_blank" rel="noopener noreferrer" className="underline hover:opacity-80">Connect your ChromaDB to get started</a>
+        </div>
+      )}
+      <div className="flex flex-1 overflow-hidden relative">
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black/50 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />
@@ -99,6 +110,7 @@ function App() {
       </main>
 
       <StoreModal open={storeOpen} onClose={() => setStoreOpen(false)} onStored={handleRefresh} />
+      </div>
     </div>
   );
 }
