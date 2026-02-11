@@ -1,10 +1,9 @@
 import { GitBranch, Loader } from 'lucide-react';
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, lazy, Suspense } from 'react';
 import type { CollectionInfo } from '../lib/chromaClient';
 import { useApi } from '../lib/useApi';
 
-// Lazy-load react-force-graph-2d to avoid SSR issues
-import ForceGraph2D from 'react-force-graph-2d';
+const ForceGraph2D = lazy(() => import('react-force-graph-2d'));
 
 interface GraphNode {
   id: string;
@@ -171,6 +170,7 @@ export function MemoryGraph({ collection }: MemoryGraphProps) {
             }
           }}
         >
+          <Suspense fallback={<div className="flex items-center justify-center h-full"><Loader className="animate-spin" size={24} /></div>}>
           <ForceGraph2D
             ref={graphRef}
             graphData={{ nodes, links }}
@@ -188,6 +188,7 @@ export function MemoryGraph({ collection }: MemoryGraphProps) {
             width={dimensions.width || 800}
             height={dimensions.height || 600}
           />
+          </Suspense>
           {hovered && (
             <div
               className="absolute pointer-events-none z-50"
