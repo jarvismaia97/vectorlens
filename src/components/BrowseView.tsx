@@ -17,6 +17,11 @@ export function BrowseView({ collection }: BrowseViewProps) {
   const pageSize = 20;
   const api = useApi();
 
+  const fetchAll = useCallback(
+    (includeEmbeddings: boolean) => collection ? api.getAllDocuments(collection.id, includeEmbeddings) : Promise.resolve({ ids: [], documents: [], metadatas: [] }),
+    [api, collection]
+  );
+
   useEffect(() => {
     if (!collection) return;
     setLoading(true);
@@ -47,11 +52,6 @@ export function BrowseView({ collection }: BrowseViewProps) {
   }
 
   const totalPages = Math.ceil(collection.count / pageSize);
-
-  const fetchAll = useCallback(
-    (includeEmbeddings: boolean) => api.getAllDocuments(collection.id, includeEmbeddings),
-    [api, collection.id]
-  );
 
   return (
     <div className="flex-1 overflow-y-auto p-6">
