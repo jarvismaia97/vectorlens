@@ -174,16 +174,16 @@ export function MemoryGraph({ collection }: MemoryGraphProps) {
           <ForceGraph2D
             ref={graphRef}
             graphData={{ nodes, links }}
-            nodeCanvasObject={paintNode}
-            nodePointerAreaPaint={(node: GraphNode, color: string, ctx: CanvasRenderingContext2D) => {
+            nodeCanvasObject={paintNode as never}
+            nodePointerAreaPaint={((node: GraphNode, color: string, ctx: CanvasRenderingContext2D) => {
               ctx.beginPath();
               ctx.arc(node.x!, node.y!, 8, 0, 2 * Math.PI);
               ctx.fillStyle = color;
               ctx.fill();
-            }}
+            }) as never}
             linkColor={() => 'rgba(99, 102, 241, 0.15)'}
             linkWidth={0.5}
-            onNodeHover={(node: GraphNode | null) => setHovered(node)}
+            onNodeHover={((node: GraphNode | null) => setHovered(node)) as never}
             backgroundColor="transparent"
             width={dimensions.width || 800}
             height={dimensions.height || 600}
