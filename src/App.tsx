@@ -60,7 +60,7 @@ function App() {
         <div className="bg-[var(--accent)]/10 border-b border-[var(--accent)]/20 px-4 py-2 text-center text-xs text-[var(--accent)] flex items-center justify-center gap-2 shrink-0">
           <Crosshair size={14} />
           <span>Demo Mode — Showing sample data</span>
-          <a href="https://github.com/pdrfranca/chromadb-viewer#readme" target="_blank" rel="noopener noreferrer" className="underline hover:opacity-80">Connect your ChromaDB to get started</a>
+          <a href="https://github.com/jarvismaia97/vectorlens#readme" target="_blank" rel="noopener noreferrer" className="underline hover:opacity-80">Connect your ChromaDB to get started</a>
         </div>
       )}
       <div className="flex flex-1 overflow-hidden relative">
